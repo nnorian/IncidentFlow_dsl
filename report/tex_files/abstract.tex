@@ -1,30 +1,11 @@
 \chapter*{Abstract}
 
-According to our standards, the first paragraph of the abstract needs to contain the following:
+This paper presents IncidentFlow, a domain-specific language (DSL) designed to improve cybersecurity incident reporting by reducing manual authoring effort and structural inconsistency. In current practice, incident reports are often produced through static templates and post-hoc editing workflows, where responders must repeatedly verify required sections, formatting constraints, and compliance-oriented evidence. As analyzed in Chapter 1, this process introduces procedural drift, weakens coordination visibility, and increases auditability risk when documentation is assembled under operational pressure.
 
-\begin{itemize}
-    \hitem Name of the project,
-    \hitem Author/-s,
-    \hitem Institution,
-    \hitem Report structure.
-\end{itemize}
+The proposed solution models incident response and reporting within a single formal specification. Instead of reconstructing reports from fragmented notes, the DSL encodes triggers, phases, control flow, verification actions, severity transitions, and reporting events as first-class language constructs. This representation enables reporting requirements to be enforced by syntax and structure, thereby reducing repetitive requirement-checking by end users.
 
-% EXAMPLE: The project entitled "Some system for doing something" was developed by the 
-% students..., from Technical University of Moldova. This project consists of X chapters,
-% introduction, conclusions and bibliography.
-\textbf{Keywords: } \LaTeX, \TeX, Research Paper, Project.
-% Put your keywords of choice.
+Implementation is based on an ANTLR-driven language pipeline, including a formally defined grammar, dedicated lexer rules, and parser logic with deterministic error handling, as detailed in Chapter 2. The resulting architecture provides a validated parse model that can support downstream automation of report generation and consistency checks.
 
-A typical abstract is a 150 to 250 word paragraph that provides readers with a quick overview of the essay or report and the way it is organized. 
-It should express the central idea of the project and the key points. It should also mention possible applications of the research being discussed in the paper.
+The main contribution is a practical, extensible foundation for process-aware incident documentation that improves efficiency, reduces human error, and strengthens traceable reporting quality in high-pressure security operations.
 
-Some of the things that can be included in the abstract are:
-
-\begin{itemize}
-    \hitem The purpose of the project,
-    \hitem The general objectives of it,
-    \hitem Used methodologies,
-    \hitem The obtained results.
-\end{itemize}
-
-% The content should NOT be written in a list. Just as a continuous paragraph.
+\textbf{Keywords: } Domain-Specific Languages, Cybersecurity Incident Response, Incident Reporting Automation, ANTLR, Parser Design, Compliance Engineering, Human Error Reduction.

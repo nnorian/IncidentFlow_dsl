@@ -1,4 +1,11 @@
-\addcontentsline{toc}{chapter}{Conclusions}
 \chapter*{Conclusions}
+\phantomsection
+\addcontentsline{toc}{chapter}{Conclusions}
 
-Here go your conclusions..
+This report analyzed the incident reporting domain and demonstrated why manual, template-driven workflows remain a significant operational bottleneck. The analysis showed that repeated requirement-checking, duplicated data entry, and late-stage formatting validation reduce response efficiency and negatively affect report consistency. These issues are structural and cannot be reliably solved through stricter discipline alone.
+
+The IncidentFlow DSL addresses this gap by moving from document-centric reporting to process-centric specification. By encoding triggers, phases, verification points, severity transitions, and report actions in a formal grammar, the approach enables consistent structure and predictable execution semantics. In practical terms, users spend less effort validating template compliance because required reporting elements are captured through language constructs rather than after-the-fact manual editing.
+
+The ANTLR-based implementation confirms technical feasibility. The grammar defines a clear syntactic contract, the lexer provides domain-aligned tokenization, and the parser pipeline offers deterministic validation with explicit error handling. Together, these components establish a foundation for automated report generation, procedural quality control, and future integration with operational security tooling.
+
+Overall, the DSL contributes both usability and governance value. It improves the end-user experience by reducing cognitive overhead and repetitive formatting tasks, while also improving organizational outcomes through more complete, auditable, and reproducible incident reports. The project therefore demonstrates that a domain-specific language can serve as a practical architectural mechanism for turning incident documentation from a manual burden into a controlled and automatable process.

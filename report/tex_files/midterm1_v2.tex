@@ -1,0 +1,70 @@
+\refstepcounter{chapter}
+\chapter*{Domain Analysis and Problem Framing}
+\phantomsection
+\addcontentsline{toc}{chapter}{Domain Analysis and Problem Framing}
+
+\section{Domain Description}
+
+Incident management and incident reporting form a high-pressure operational domain at the core of modern cybersecurity practice. Organizations are required to detect malicious activity, assess impact, contain spread, restore services, and produce credible records of every relevant decision and action. In this context, reporting is not a secondary administrative task; it is part of the response system itself because it enables coordination, accountability, and post-incident learning \cite{nist_800_61,iso_27035}.
+
+The domain has become more demanding as digital dependency has increased across critical business processes. Security teams now operate in environments with high event volume, heterogeneous infrastructure, and strict response expectations. The financial impact of incidents remains substantial, which further raises the need for fast and well-documented handling \cite{ibm_breach_2023}. As a result, incident reporting must simultaneously satisfy technical teams, management decision-makers, auditors, and legal stakeholders.
+
+\subsection{Domain Overview: Cybersecurity Incident Response}
+
+Cybersecurity incident response is commonly described through a lifecycle model. NIST SP 800-61 defines four major phases: preparation; detection and analysis; containment, eradication, and recovery; and post-incident activity \cite{nist_800_61}. This lifecycle view is essential because reporting requirements are phase-dependent. During preparation, organizations document policies, roles, and playbooks; during detection, they capture indicators, triage rationale, and incident classification; during containment and recovery, they document operational actions and system state transitions; during post-incident activity, they formalize evidence, lessons learned, and corrective actions.
+
+The phase model is not strictly linear in real operations. Teams often move back and forth between analysis and containment, or execute certain activities in parallel. Therefore, reporting structures that assume a simple sequential narrative can fail to represent the actual chronology of events. This mismatch is one reason why manually written reports frequently require rework before they can be used confidently for management review or compliance purposes.
+
+The domain is guided by multiple framework families. NIST emphasizes operational guidance and procedural readiness, ISO/IEC 27035 emphasizes governance and systematic incident management, and practitioner resources from security operations communities provide implementation-level playbook patterns \cite{nist_800_61,iso_27035,sans_incident_handler}. In practice, organizations combine these sources, which improves rigor but also increases cognitive burden for responders who must keep procedures and reports aligned under time pressure.
+
+\subsection{Operational Role of Playbooks}
+
+Playbooks translate abstract framework recommendations into executable response steps. They typically define what to check first, when to escalate, what evidence to collect, which communication channels to use, and which actions require approvals. In mature programs, playbooks also include branching logic for common contingencies, such as missing acknowledgements, contradictory telemetry, or failed remediation steps.
+
+Despite their importance, many playbooks are still maintained as static documents. During active incidents, analysts read and interpret these documents manually while also handling alerts and coordinating with other teams. Research on high-stress security operations indicates that cognitive load significantly affects procedural consistency, increasing the probability of skipped steps or incomplete documentation \cite{journal_cybersecurity_stress}. This is a structural limitation of passive documentation, not only an individual performance issue.
+
+\subsection{Regulatory and Governance Context}
+
+Incident reporting obligations are shaped by legal and regulatory frameworks. In the European context, GDPR imposes strict breach notification expectations, while NIS2 broadens reporting duties across critical sectors \cite{gdpr,nis2}. In the United States, sector- and governance-oriented obligations, such as SOX and HIPAA-related requirements, reinforce the need for accurate, traceable incident records \cite{sox,hipaa}. Across jurisdictions, the common denominator is evidentiary quality: organizations must show what happened, when it happened, and whether response procedures were followed.
+
+This governance pressure influences report structure directly. Reports must be complete enough for audit and legal defensibility, but also concise enough for operational decision-making. As incident complexity grows, achieving both properties with purely manual workflows becomes increasingly difficult. The domain therefore demands reporting approaches that are explicit, reproducible, and less dependent on late-stage manual normalization.
+
+\subsection{Stakeholders and Information Asymmetry}
+
+Incident response involves multiple stakeholder groups with distinct information needs. SOC analysts need step-level guidance and immediate feedback; incident commanders require near real-time visibility into progress and blockers; security leadership needs risk-oriented summaries and trend evidence; compliance and legal teams require timeline integrity and procedural proof. These perspectives are interdependent but not identical.
+
+A recurring domain issue is information asymmetry during active incidents. Technical detail is often available at the analyst level but not aggregated effectively for leadership and governance stakeholders. By the time summaries are manually assembled, important context may be lost or inconsistently represented. Consequently, stakeholders may operate with delayed or incomplete situational awareness, which affects escalation quality and post-incident decision-making \cite{isaca_survey_2021,ibm_breach_2023}.
+
+\section{Problem Analysis}
+
+Given this domain context, the central problem is not the absence of templates, but the inefficiency of template-dependent reporting under operational pressure. Current workflows require responders to repeatedly verify whether mandatory fields, section ordering constraints, and formatting conventions have been satisfied. This repeated requirement-checking consumes attention that should be allocated to investigation and containment.
+
+\subsection{Procedural Compliance Gap}
+
+The first major gap is procedural compliance drift during live response. Static playbooks and static report templates rely on manual discipline to maintain sequence correctness. In high-tempo situations, teams prioritize immediate technical actions, and documentation quality degrades. Missing timestamps, implicit assumptions, and incomplete rationale then appear in final reports, reducing their audit value \cite{journal_cybersecurity_stress,isaca_survey_2021}.
+
+\subsection{Visibility and Coordination Gap}
+
+The second gap is real-time coordination visibility. When progress is tracked informally across chat channels, ticket comments, and ad-hoc notes, incident leadership cannot reliably determine which required response steps have been completed and which are pending. This delays escalation decisions and extends recovery timelines \cite{ibm_breach_2023}.
+
+\subsection{Auditability Gap}
+
+The third gap is evidentiary traceability. Regulations and governance frameworks expect organizations to demonstrate process adherence, but manual reporting practices frequently produce fragmented artifacts. Reconstructing a defensible timeline from dispersed evidence is labor-intensive and error-prone, especially when event ownership and decision rationale were not captured consistently at execution time \cite{gdpr,nis2,sox,hipaa}.
+
+\subsection{Template-Friction Gap}
+
+The fourth gap is template friction itself. Manual report authoring requires repeated structural checks: whether all required sections exist, whether terminology is aligned, whether severity evolution is explained, and whether closure evidence is present. These checks are necessary, but when they are performed manually at the end of an incident, they introduce rework loops and increase completion latency. In effect, the process optimizes for document formatting after the fact rather than structured capture during operations.
+
+\subsection{Problem Synthesis}
+
+The four gaps are tightly coupled. Procedural drift weakens visibility; weak visibility harms coordination; weak coordination and fragmented capture harm auditability; and all of them increase template friction during report finalization. Therefore, incremental improvements to templates alone are insufficient. The root issue is representational: incident operations and incident reporting are modeled separately, then reconciled manually.
+
+\section{Description of the DSL}
+
+The IncidentFlow DSL is proposed as a representational solution to this problem. Instead of treating reporting as a final narrative that is manually composed from scattered operational artifacts, the DSL encodes incident logic directly in a structured, machine-parseable form. The language unifies operational flow and reporting semantics so that required report content emerges from validated process execution.
+
+At the model level, the DSL separates reusable context from incident-specific behavior through configuration blocks, imports, and playbook declarations. Within playbooks, the language supports triggers, named phases, conditional branches, iteration, timeout-aware waiting, verification handlers, severity transitions, logging, and explicit control transfer. This design captures the essential response semantics needed for both execution guidance and report reconstruction.
+
+From a usability perspective, the key value is reduction of repetitive manual requirement-checking. If required reporting elements are represented as first-class language constructs (for example, explicit phase boundaries, severity updates, and closure actions), users do not need to repeatedly inspect external templates to verify structural completeness. Completeness becomes a property of the specification and validation pipeline, not a late-stage manual proofreading task.
+
+From an architectural perspective, the DSL provides deterministic syntax and a stable parse-tree representation that can support downstream automation. These properties enable future capabilities such as generated report templates, policy conformance validation, timeline reconstruction, and evidence packaging. In this sense, the DSL is both a domain notation and an integration surface between operations and governance.

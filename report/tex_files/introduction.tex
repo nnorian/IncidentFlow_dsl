@@ -1,16 +1,13 @@
-\addcontentsline{toc}{chapter}{Introduction}
 \chapter*{Introduction}
+\phantomsection
+\addcontentsline{toc}{chapter}{Introduction}
 
-The purpose of the introduction is to inform the reader/evaluator about the content and the general objectives of the paper.
-In this part of the paper, the following aspects should be covered:
+Cybersecurity incidents are handled under pressure, but incident reports are still often produced with manual, template-driven work. Analysts and incident leads must investigate technical evidence, coordinate decisions, and document actions in parallel, while also making sure the final report follows predefined structures and mandatory fields. In practice, this creates a recurring burden: teams repeatedly pause to check whether they have respected all template requirements, formatting rules, and reporting constraints. The process becomes slow, error-prone, and hard to sustain during active incidents.
 
-\begin{itemize}
-    \hitem Studied domain,
-    \hitem Motivation for choosing the topic,
-    \hitem Degree of novelty / relevance of the topic or of the problem,
-    \hitem General objectives of the project,
-    \hitem Research methodologies that have been used,
-    \hitem A brief sneak peek to the content of the subsequent chapters.
-\end{itemize}
+This project focuses on improving that situation through usability and automation. The core idea is that reporting should be generated from the incident-handling workflow itself, not written from scratch after the response ends. When key actions, timestamps, decisions, and ownership are captured in structured form during execution, the system can automatically assemble most of the report content. This reduces duplicate work, keeps information consistent across sections, and allows teams to spend less time verifying checklist items in static templates.
 
-The volume of the introduction usually is about 2-3 pages.
+An important objective is to reduce the constant need to manually validate compliance with report templates. Instead of repeatedly checking if each required section exists and whether every mandatory detail has been included, responders should receive built-in guidance that enforces structure as they work. In this approach, template requirements are embedded into the flow, so completeness and consistency become default outcomes rather than late-stage corrections. The benefit is both operational and organizational: faster reporting cycles, fewer omissions, and clearer artifacts for management and audit use.
+
+The project also emphasizes ease of use for different roles involved in incident response. A usable system should make the next step explicit, minimize unnecessary data entry, and preserve human judgment where it matters most. Automation is treated as support, not replacement: it handles repetitive formatting and report composition tasks, while analysts remain responsible for interpretation, prioritization, and decision-making. This balance is essential for producing reports that are both technically reliable and understandable to non-technical stakeholders.
+
+The rest of the report follows this direction. The next chapter analyzes the incident response domain and identifies the procedural and reporting gaps that motivate the proposed solution. It then introduces the initial concept for executable guidance and automated report generation. The final chapter summarizes the current results and outlines the next steps. Overall, the project aims to make incident reporting accurate, timely, and significantly easier by integrating template compliance and report generation directly into daily response workflows.

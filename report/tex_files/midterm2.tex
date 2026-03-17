@@ -1,19 +1,294 @@
-\addcontentsline{toc}{chapter}{Midterm 2}
-\chapter*{Midterm 2}
+\refstepcounter{chapter}
+\chapter*{Language Architecture and Implementation}
+\phantomsection
+\addcontentsline{toc}{chapter}{Language Architecture and Implementation}
 
+\section{Grammar Structure}
 
-\addcontentsline{toc}{section}{Section 1}
-\section*{Section 1}
+The IncidentFlow grammar is designed as a domain-oriented formal specification that models how incident procedures are described, validated, and prepared for automated report generation. At the top level, the language is intentionally constrained: a valid program can contain configuration blocks, import declarations, and one or more playbook declarations. This creates a predictable document structure and prevents partially defined incident procedures from being accepted as complete specifications.
 
+\begin{lstlisting}
+program
+    : config_block* import_decl* playbook_decl+ EOF
+    ;
 
-\addcontentsline{toc}{section}{Section 2}
-\section*{Section 2}
+import_decl
+    : IMPORT STRING (AS IDENTIFIER)?
+    ;
 
+config_block
+    : CONFIG config_name COLON config_entry+
+    ;
+\end{lstlisting}
 
-\addcontentsline{toc}{section}{Section 3}
-\section*{Section 3}
+From an architectural perspective, this top-level design enforces a useful separation of concerns. Configuration captures stable, reusable organizational metadata, while playbooks capture incident-specific behavior. The report model then becomes derivable from explicit execution constructs instead of informal prose. This is the first step toward reducing manual requirement-checking and enforcing template completeness through syntax.
 
+The grammar models incident lifecycle behavior with explicit declarations for triggers, phases, and report blocks. A playbook is therefore not a flat script but a structured operational narrative. Triggers define activation conditions, phases encode controlled progression, and report sections capture closure actions.
 
-\addcontentsline{toc}{section}{Section 4}
-\section*{Section 4}
+\begin{lstlisting}
+playbook_decl
+    : PLAYBOOK IDENTIFIER trigger_decl phase_decl+ report_decl?
+    ;
 
+trigger_decl
+    : TRIGGER COLON expr
+    ;
+
+phase_decl
+    : PHASE IDENTIFIER COLON statement+
+    ;
+
+report_decl
+    : REPORT COLON statement+
+    ;
+\end{lstlisting}
+
+This structure directly supports reporting automation: each phase contributes traceable execution events, and the report declaration provides explicit closing semantics. Instead of asking users to re-check external templates for required sections, required reporting elements are represented in the grammar itself.
+
+The statement system is expressive enough for realistic incident handling while remaining intentionally limited to domain-relevant constructs. The grammar includes execution actions, conditional paths, iteration, waiting with timeout handling, verification with failure handling, logging, control transfer, assignment, parallel execution intent, and severity control.
+
+\begin{lstlisting}
+statement
+    : do_stmt
+    | if_stmt
+    | for_stmt
+    | wait_stmt
+    | verify_stmt
+    | log_stmt
+    | goto_stmt
+    | assign_stmt
+    | parallel_block
+    | severity_stmt
+    ;
+
+wait_stmt
+    : WAIT IDENTIFIER FROM expr TIMEOUT DURATION timeout_handler?
+    ;
+
+verify_stmt
+    : VERIFY expr fail_handler?
+    ;
+\end{lstlisting}
+
+Expression rules are organized by precedence to avoid ambiguity and to keep condition semantics deterministic. This is essential for reproducibility and future static analysis.
+
+\begin{lstlisting}
+expr
+    : or_expr
+    ;
+
+or_expr
+    : and_expr (OR and_expr)*
+    ;
+
+and_expr
+    : not_expr (AND not_expr)*
+    ;
+
+not_expr
+    : NOT not_expr
+    | comparison
+    ;
+
+comparison
+    : primary (comp_op primary)?
+    ;
+\end{lstlisting}
+
+The literal and access model supports practical policy authoring. In addition to primitive literals, the language supports list literals, member access, and chain literals, which are useful for escalation sequences and organizational routing metadata.
+
+\begin{lstlisting}
+config_value
+    : STRING
+    | INT
+    | severity_lit
+    | bool_lit
+    | list_lit
+    | chain_lit
+    ;
+
+list_lit
+    : LBRACKET config_value (COMMA config_value)* RBRACKET
+    ;
+
+chain_lit
+    : IDENTIFIER (ARROW IDENTIFIER)+
+    ;
+\end{lstlisting}
+
+Finally, the grammar balances strictness and extensibility. Strictness is provided by explicit keyword-driven forms and mandatory structural elements. Extensibility is provided by modular rules that can evolve without changing core parse entry points. This combination makes the grammar suitable for iterative DSL growth while maintaining compatibility for automated report generation pipelines.
+
+\section{Lexer Rules}
+
+The lexer defines the lexical contract of the language and transforms source text into domain-aware tokens used by the parser. In IncidentFlow, lexical design is intentionally explicit: operational terms are reserved as keywords so the syntax remains self-documenting and less error-prone.
+
+\begin{lstlisting}
+PLAYBOOK    : 'PLAYBOOK' ;
+CONFIG      : 'CONFIG' ;
+TRIGGER     : 'TRIGGER' ;
+PHASE       : 'PHASE' ;
+DO          : 'DO' ;
+IF          : 'IF' ;
+THEN        : 'THEN' ;
+ELSE        : 'ELSE' ;
+WAIT        : 'WAIT' ;
+TIMEOUT     : 'TIMEOUT' ;
+ON_TIMEOUT  : 'ON_TIMEOUT' ;
+VERIFY      : 'VERIFY' ;
+ON_FAIL     : 'ON_FAIL' ;
+REPORT      : 'REPORT' ;
+SEVERITY    : 'SEVERITY' ;
+\end{lstlisting}
+
+Domain literals are captured with dedicated token rules. The objective is to validate typing constraints as early as possible and avoid postponing basic correctness checks to semantic phases.
+
+\begin{lstlisting}
+IDENTIFIER  : [a-zA-Z_][a-zA-Z0-9_]* ;
+STRING      : '"' (~["\\\r\n] | '\\' .)* '"' ;
+DURATION    : [0-9]+ ('sec' | 'min' | 'hr') ;
+INT         : [0-9]+ ;
+
+TRUE        : 'TRUE' ;
+FALSE       : 'FALSE' ;
+LOW         : 'LOW' ;
+MEDIUM      : 'MEDIUM' ;
+HIGH        : 'HIGH' ;
+CRITICAL    : 'CRITICAL' ;
+\end{lstlisting}
+
+Operator rules are declared with careful ordering to preserve longest-match behavior and avoid tokenization conflicts. This is particularly important for comparison operators where prefix overlap exists.
+
+\begin{lstlisting}
+EQ          : '==' ;
+NEQ         : '!=' ;
+GTE         : '>=' ;
+LTE         : '<=' ;
+GT          : '>' ;
+LT          : '<' ;
+
+ASSIGN      : '=' ;
+ARROW       : '->' ;
+COLON       : ':' ;
+COMMA       : ',' ;
+DOT         : '.' ;
+LPAREN      : '(' ;
+RPAREN      : ')' ;
+LBRACKET    : '[' ;
+RBRACKET    : ']' ;
+\end{lstlisting}
+
+Lexical sanitation is handled through explicit skip rules for comments, whitespace, and BOM markers. This keeps token streams stable across operating systems and editor configurations.
+
+\begin{lstlisting}
+COMMENT       : '#' ~[\r\n]* -> skip ;
+BLOCK_COMMENT : '/*' .*? '*/' -> skip ;
+WHITESPACE    : [ \t\r\n]+ -> skip ;
+BOM           : '\uFEFF' -> skip ;
+\end{lstlisting}
+
+The lexer therefore contributes directly to usability goals: authors can write concise, readable playbooks using domain terms, while the implementation enforces lexical consistency automatically.
+
+\section{Parser Logic}
+
+Parser logic is implemented through generated parser classes and a dedicated runtime driver. The runtime flow follows a standard but robust sequence: source loading, character stream creation, lexical analysis, token stream construction, parser invocation, and parse-tree materialization through the program entry rule.
+
+\begin{lstlisting}[language=Java]
+CharStream input = CharStreams.fromString(source);
+IncidentFlowLexer lexer = new IncidentFlowLexer(input);
+CommonTokenStream tokens = new CommonTokenStream(lexer);
+IncidentFlowParser parser = new IncidentFlowParser(tokens);
+ParseTree tree = parser.program();
+\end{lstlisting}
+
+A key design decision is centralized syntax error accounting through a custom listener attached to both lexer and parser. This provides a uniform diagnostic channel and supports fail-fast termination when invalid constructs are present.
+
+\begin{lstlisting}[language=Java]
+ErrorCounter errors = new ErrorCounter();
+lexer.removeErrorListeners();
+lexer.addErrorListener(errors);
+parser.removeErrorListeners();
+parser.addErrorListener(errors);
+
+if (errors.getCount() > 0) {
+    System.err.println("Parsing finished with " + errors.getCount() + " error(s).");
+    System.exit(2);
+}
+\end{lstlisting}
+
+The error listener implementation is lightweight and deterministic, which is appropriate for build pipelines where syntax validity must be an objective gate.
+
+\begin{lstlisting}[language=Java]
+private static class ErrorCounter extends BaseErrorListener {
+    private int count = 0;
+
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
+                            int line, int charPositionInLine,
+                            String msg, RecognitionException e) {
+        System.err.printf("line %d:%d %s%n", line, charPositionInLine, msg);
+        count++;
+    }
+
+    int getCount() { return count; }
+}
+\end{lstlisting}
+
+From a parser architecture viewpoint, three properties are relevant for the DSL objective. First, structural validation is guaranteed before execution or report generation begins. Second, parse trees preserve full syntactic context, enabling deterministic extraction of phase transitions, severity changes, and report actions. Third, parser output can be transformed into intermediate models for downstream generators that produce human-readable reports without requiring users to manually satisfy template constraints.
+
+The generation and execution workflow is automated through a build script that regenerates parser artifacts, compiles runtime classes, and validates a representative DSL sample. This allows grammar evolution to be tested continuously.
+
+\begin{lstlisting}[language=bash]
+java -jar "${ANTLR_JAR}" \
+    -o gen \
+    -package incidentflow \
+    -visitor \
+    -listener \
+    IncidentFlow.g4
+
+javac -cp "${ANTLR_JAR}" -d bin $(find gen -name '*.java') Main.java
+java -cp "bin:${ANTLR_JAR}" incidentflow.Main sample.iflow
+\end{lstlisting}
+
+In summary, parser logic in IncidentFlow is intentionally conservative and reliability-oriented. The implementation favors explicit syntax, deterministic error reporting, and reproducible parse outcomes. These properties are necessary for a DSL whose primary architectural promise is trustworthy automation of incident reporting.
+
+\section{Derivation Tree Analysis}
+
+The derivation tree is the most direct structural representation of how an IncidentFlow specification is recognized by the grammar. Whereas token streams capture lexical units and parser rules define admissible forms, the derivation tree materializes the full hierarchical decomposition from the start symbol to terminal constructs. This makes the tree an important artifact for grammar validation, semantic mapping, and quality assurance in language evolution.
+
+For readability and layout continuity, the full derivation tree visual is provided in Appendix A.4.
+
+At the root level, the tree is anchored in \texttt{program}, which expands into optional configuration and import regions, followed by one or more \texttt{playbook\_decl} nodes. This root structure is architecturally significant because it enforces a canonical specification order and prevents malformed documents where operational logic exists without declarative context.
+
+The next layer captures playbook identity and activation logic. A \texttt{playbook\_decl} node expands into the playbook name, a mandatory \texttt{trigger\_decl}, one or more \texttt{phase\_decl} blocks, and an optional \texttt{report\_decl}. In the tree, this pattern makes the lifecycle skeleton explicit: activation condition, staged response behavior, and closure/reporting behavior. The tree therefore encodes not only syntax, but a normalized operational narrative.
+
+Within each phase, statement nodes form deeply nested subtrees that correspond to control-flow semantics. Conditional branches generate \texttt{if\_stmt} subtrees with explicit \texttt{THEN} and optional \texttt{ELSE} branches; loops generate \texttt{for\_stmt} branches over iterable expressions; timeout and failure handling produce nested handler branches under \texttt{wait\_stmt} and \texttt{verify\_stmt}. This nesting is essential for downstream transformations, since it preserves execution dependencies and fallback logic that are often lost in flat, manually written reports.
+
+Expression subtrees reveal another critical property: precedence-aware normalization. Nodes for \texttt{or\_expr}, \texttt{and\_expr}, \texttt{not\_expr}, and \texttt{comparison} are arranged according to grammar precedence, ensuring that complex trigger and verification predicates are represented unambiguously. For report automation, this is important because condition rationale can be reconstructed from tree structure rather than inferred from free-form text.
+
+The tree also provides a bridge between procedural and reporting semantics. Subtrees containing \texttt{LOG}, \texttt{SEVERITY}, \texttt{VERIFY}, and closure actions in \texttt{report\_decl} can be mapped to report sections such as timeline events, severity evolution, validation outcomes, and closure summary. In other words, the derivation tree provides a deterministic intermediate representation from which reporting artifacts can be generated with consistent structure.
+
+To illustrate structural depth, the following simplified textual projection shows the core hierarchy observed in a typical sample parse:
+
+\begin{lstlisting}
+program
+|- config_block*
+|- import_decl*
+`- playbook_decl+
+   |- PLAYBOOK IDENTIFIER
+   |- trigger_decl
+   |  `- expr
+   |- phase_decl+
+   |  |- PHASE IDENTIFIER
+   |  `- statement+
+   |     |- if_stmt
+   |     |- wait_stmt
+   |     |- verify_stmt
+   |     |- do_stmt
+   |     `- severity_stmt
+   `- report_decl?
+      `- statement+
+\end{lstlisting}
+
+From an engineering perspective, this tree-centric view supports three advanced activities. First, it enables regression testing of grammar changes by comparing expected and actual subtree shapes for representative inputs. Second, it allows semantic passes to consume stable node patterns rather than brittle textual heuristics. Third, it improves diagnosability: when parse errors occur, developers can localize failures by identifying which subtree expansion failed and at what structural depth.
+
+Overall, the derivation tree is not a debugging convenience but a core architectural artifact in the IncidentFlow pipeline. It demonstrates that the language can express incident procedures as formally constrained structures, and it provides the foundation for reliable translation from authored playbooks to automation-ready reporting representations.

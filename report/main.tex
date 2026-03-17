@@ -1,5 +1,23 @@
 \documentclass{tum_report}
 
+\usepackage{tabularx}
+\usepackage{pdflscape}
+\usepackage{pdfpages}
+\hypersetup{linktoc=all}
+\lstset{
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    tabsize=4
+}
+
 
 \bibliographystyle{tex_files/bibliography/styles/iso690} % downloaded from some chech uni
 
@@ -28,12 +46,14 @@
 
     \input{tex_files/conclusion}
     \clearpage
+
+    \input{tex_files/appendix}
+    \clearpage
     
     \phantomsection
     \addcontentsline{toc}{chapter}{Bibliography}
 
     % you can use either .bib format or .tex. Please, do not use both, comment the one you don't need.
-    \nocite{*} 
     \bibliography{tex_files/bibliography/bibliography} % .bib
 
 

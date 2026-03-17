@@ -1,13 +1,7 @@
-\chapter{Midterm 1}
-
-The first chapter of the project report contains background information about the problem, the associated domain and the impact the problem has on the identified domain. 
-Also, when knowing the domain, one could establish target groups and perform customer validation in order to justify the relevance of the problem and the need for the project itself. \cite{chicago}
-
-Also, it is important to represent the project in a comparative analysis in relation to other analogs. 
-By doing this, the project team can emphasize what the analogs lack and what the new solution could improve.
-
-
-\section{Problem Description and Problem Analysis}
+\refstepcounter{chapter}
+\chapter*{Domain Analysis and Problem Framing}
+\phantomsection
+\addcontentsline{toc}{chapter}{Domain Analysis and Problem Framing}
 
 \section{Problem Description and Problem Analysis}
 
@@ -77,7 +71,7 @@ Incident response playbooks are structured, procedural documents that prescribe 
 Playbooks operationalize the high-level guidance of frameworks like NIST SP 800-61 into actionable, role-specific instructions.
 They typically include decision trees, escalation criteria, specific system commands, communication templates, and approval gates \cite{sans_incident_handler}.
 
-In practice, playbooks are most commonly stored and distributed as static documents — PDF files, Word documents, or wiki pages — that analysts must read and manually follow under time pressure.
+In practice, playbooks are most commonly stored and distributed as static documents --- PDF files, Word documents, or wiki pages --- that analysts must read and manually follow under time pressure.
 This creates a significant operational risk: research published in the \textit{Journal of Cybersecurity} has highlighted that cognitive load during high-stress incident response scenarios leads to procedural non-compliance, step skipping, and documentation gaps \cite{journal_cybersecurity_stress}.
 Furthermore, static playbooks are difficult to keep current; as threat landscapes evolve and organizational environments change, outdated procedures can mislead responders rather than guide them.
 
@@ -139,7 +133,7 @@ Requires precise timeline of events and response actions for regulatory filings 
 \end{tabularx}
 \end{table}
 
-The diversity of stakeholder needs highlights a structural challenge within the IR domain: different roles require different views and interfaces into the same underlying incident data, yet most organizations rely on a single shared artifact — the static playbook document — to coordinate all of these perspectives simultaneously.
+The diversity of stakeholder needs highlights a structural challenge within the IR domain: different roles require different views and interfaces into the same underlying incident data, yet most organizations rely on a single shared artifact --- the static playbook document --- to coordinate all of these perspectives simultaneously.
 
 \subsubsection{Identified Gaps and Problem Areas in the Domain}
 
@@ -162,68 +156,12 @@ Quality control is largely informal and depends on periodic manual review, which
 
 These four problem areas collectively define the operational and organizational context within which the present project is situated.
 
-\addcontentsline{toc}{section}{Solution Proposal}
-\section{Solution Proposal}
+\section{Description of the DSL}
 
-The next step after describing and analyzing the problem is to create a concept for the proposed solution. 
-The concept is just an initial vector for the rest of the project \ref{fig:concept}. 
-It should be simple and on point, giving an overview on what you intend to design.
-\vspace{0.5cm}
+The IncidentFlow DSL is proposed as a representational solution to this problem. Instead of treating reporting as a final narrative that is manually composed from scattered operational artifacts, the DSL encodes incident logic directly in a structured, machine-parseable form. The language unifies operational flow and reporting semantics so that required report content emerges from validated process execution.
 
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/concept.png}
-    \caption{Concept}
-    \label{fig:concept}
-\end{figure}
+At the model level, the DSL separates reusable context from incident-specific behavior through configuration blocks, imports, and playbook declarations. Within playbooks, the language supports triggers, named phases, conditional branches, iteration, timeout-aware waiting, verification handlers, severity transitions, logging, and explicit control transfer. This design captures the essential response semantics needed for both execution guidance and report reconstruction.
 
-The solution concept should be represented by a project name and the objectives that the project teams has.
-Basically the objectives would help with the definition of the requirements and also can help other people to understand the idea behind the project.
+From a usability perspective, the key value is reduction of repetitive manual requirement-checking. If required reporting elements are represented as first-class language constructs (for example, explicit phase boundaries, severity updates, and closure actions), users do not need to repeatedly inspect external templates to verify structural completeness. Completeness becomes a property of the specification and validation pipeline, not a late-stage manual proofreading task.
 
-As time is limited and there are lot's of new things to learn and use, probably the project teams will not get all the things right the first time.
-The first iteration through the requirements for the 1st midterm will be presented at the evaluation and the teams should be confident on what has been done.
-\vspace{0.5cm}
-
-
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/before.png}
-    \caption{Concept}
-    \label{fig:before}
-\end{figure}
-
-All the gathered information should be taken as the base for the work that comes next. 
-Also, the feedback from the mentors should be considered in order to fix the issues if any, and to polish what has been done so far \ref{fig:after}.
-With that in mind, iteration after iteration, the concept takes shape and the project covers more of the initial requirements.
-
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/after.png}
-    \caption{After}
-    \label{fig:after}
-\end{figure}
-
-\section{Target Group and Customer Validation}
-
-The target group represents an audience that is identified as potential users of a product. 
-Basically the individuals from a target group have something in common which can be things like age, occupation, hobbies etc., or maybe they are just bothered by the same problem \ref{fig:problem_analysis}.
-
-The target group should be presented in this section and, if applicable, any classification of the target group into sub-groups should be enlisted as well. 
-This can be done in list, tabular forms or even plain text.
-
-
-\begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/problem_analysis.png}
-    \caption{Problem Analysis}
-    \label{fig:problem_analysis}
-\end{figure}
-
-
-
-\section{Comparative Analysis}
-
-Here goes your comparative analysis.. % \cite{lominadze1981}
-
-
-% \section{Domain Analysis Conclusions}
-% \begin{enumerate}
-%     \item The current chapter presented a thorough domain analysis and customer validation for project X.
-%     \item While performing the domain analysis the identified target groups are the following: A, B, C.
-% \end{enumerate}
+From an architectural perspective, the DSL provides deterministic syntax and a stable parse-tree representation that can support downstream automation. These properties enable future capabilities such as generated report templates, policy conformance validation, timeline reconstruction, and evidence packaging. In this sense, the DSL is both a domain notation and an integration surface between operations and governance.
