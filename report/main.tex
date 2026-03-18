@@ -3,7 +3,13 @@
 \usepackage{tabularx}
 \usepackage{pdflscape}
 \usepackage{pdfpages}
-\hypersetup{linktoc=all}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{tex_files/bibliography/bibliography.bib}
+\let\citep\autocite
+\let\citet\textcite
+\hypersetup{linktoc=all,colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue}
 \lstset{
     basicstyle=\ttfamily\small,
     numbers=left,
@@ -17,9 +23,6 @@
     showstringspaces=false,
     tabsize=4
 }
-
-
-\bibliographystyle{tex_files/bibliography/styles/iso690} % downloaded from some chech uni
 
 
 \begin{document}
@@ -53,10 +56,6 @@
     \phantomsection
     \addcontentsline{toc}{chapter}{Bibliography}
 
-    % you can use either .bib format or .tex. Please, do not use both, comment the one you don't need.
-    \bibliography{tex_files/bibliography/bibliography} % .bib
-
-
-    % \input{tex_files/bibliography/bibliography} % simply .tex
+    \printbibliography[heading=bibintoc,title={Bibliography}]
 
 \end{document}

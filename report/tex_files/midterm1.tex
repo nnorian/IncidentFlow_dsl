@@ -10,7 +10,7 @@ Naturally, the project team should continue the work on the project by building 
 A good description of the problem forms the foundation of the other aspects and allows the team to make progress.
 Any problem has its impact in the scope of one or multiple domains.
 It is important to identify this scope so that the problem could be analyzed and its impact over the domain assessed.
-Having that in place, the project team can come up with a concept for a solution to the analyzed problem. \cite{chicago}
+Having that in place, the project team can come up with a concept for a solution to the analyzed problem.
 
 \subsection{Problem Statement}
 
@@ -20,67 +20,67 @@ Incident response playbooks are currently static, weakly testable documents that
 
 Cybersecurity incident response (IR) is one of the most operationally demanding disciplines within the broader field of information security.
 As organizations increasingly depend on digital infrastructure, the frequency, sophistication, and financial impact of cyberattacks have grown substantially.
-According to IBM's \textit{Cost of a Data Breach Report 2023}, the global average cost of a data breach reached \$4.45 million USD, a record high at the time of publication \cite{ibm_breach_2023}.
+According to IBM's \textit{Cost of a Data Breach Report 2025}, the global average cost of a data breach remains a major organizational concern \autocite{ibm2025}.
 This environment places enormous pressure on security teams to detect, analyze, and recover from incidents in a structured, repeatable, and auditable manner.
 The domain of incident response sits at the intersection of technical operations, organizational governance, and regulatory compliance, making it inherently multidisciplinary and complex.
 
 \subsubsection{What Is Incident Response?}
 
 Incident response is the organized approach to addressing and managing the aftermath of a security breach or cyberattack.
-The primary goals are to limit damage, reduce recovery time and costs, preserve forensic evidence, and prevent future recurrences \cite{nist_800_61}.
-A \textit{security incident} is formally defined by NIST as ``a violation or imminent threat of violation of computer security policies, acceptable use policies, or standard security practices'' \cite{nist_800_61}.
+The primary goals are to limit damage, reduce recovery time and costs, preserve forensic evidence, and prevent future recurrences \citep{nist2025}.
+A \textit{security incident} is formally defined by NIST as ``a violation or imminent threat of violation of computer security policies, acceptable use policies, or standard security practices'' \citep{nist2025}.
 This definition encompasses a wide range of events, from malware infections and ransomware deployments to insider threats, data exfiltration, and distributed denial-of-service (DDoS) attacks.
 
 The discipline is governed by several internationally recognized frameworks and standards.
-The most widely adopted in North America is NIST Special Publication 800-61 \textit{Computer Security Incident Handling Guide}, published and maintained by the National Institute of Standards and Technology \cite{nist_800_61}.
-In Europe and internationally, ISO/IEC 27035 \textit{Information Security Incident Management} provides a comparable structured methodology \cite{iso_27035}.
-The SANS Institute additionally publishes its own IR methodology and maintains the widely referenced \textit{Incident Handler's Handbook}, which is extensively used for practitioner training \cite{sans_incident_handler}.
+The most widely adopted in North America is NIST Special Publication 800-61 \textit{Computer Security Incident Handling Guide}; Rev. 2 was withdrawn on April 03, 2025 and superseded by Rev. 3 \citep{nist2025,nistrev3update}.
+In Europe and internationally, ISO/IEC 27035 \textit{Information Security Incident Management} provides a comparable structured methodology \citep{iso27035}.
+The SANS Institute additionally publishes its own IR methodology and maintains the widely referenced \textit{Incident Handler's Handbook}, which is extensively used for practitioner training \citep{sans2021}.
 While these frameworks differ in scope and terminology, they share a common structural philosophy: incident response must be lifecycle-based, documented, and continuously improved.
 
 \subsubsection{The Incident Response Lifecycle (NIST SP 800-61)}
 
-NIST SP 800-61 defines the incident response lifecycle as consisting of four primary phases, each with distinct objectives and activities \cite{nist_800_61}.
+NIST SP 800-61 defines the incident response lifecycle as consisting of four primary phases, each with distinct objectives and activities \autocite{nist2025}.
 These phases are not always strictly sequential; in practice, responders may cycle between phases or execute certain activities in parallel depending on the nature and scope of the incident.
 
 \paragraph{Phase 1: Preparation.}
 The preparation phase encompasses all activities that take place before an incident occurs.
 This includes establishing incident response policies and procedures, defining team roles and responsibilities, procuring and configuring response tooling, creating and maintaining \textit{playbooks} (step-by-step procedural guides for specific incident types), setting up communication and escalation plans, and conducting tabletop exercises and simulations.
-NIST emphasizes that preparation is arguably the most critical phase because the quality of preparation directly determines the effectiveness of all subsequent phases \cite{nist_800_61}.
+NIST emphasizes that preparation is arguably the most critical phase because the quality of preparation directly determines the effectiveness of all subsequent phases \citep{nist2025}.
 Organizations that lack mature preparation capabilities tend to exhibit significantly longer mean time to detect (MTTD) and mean time to respond (MTTR) metrics.
-According to IBM's 2023 report, organizations with a fully deployed IR team and regularly tested IR plans saved an average of \$1.49 million USD compared to those without such capabilities \cite{ibm_breach_2023}.
+According to IBM's 2025 report, organizations with mature IR practices consistently reduce breach impact compared to organizations without tested response capabilities \citep{ibm2025}.
 
 \paragraph{Phase 2: Detection and Analysis.}
 The detection and analysis phase involves identifying potential security events and determining whether they constitute actual incidents.
-Detection sources include Security Information and Event Management (SIEM) platforms, Intrusion Detection and Prevention Systems (IDS/IPS), endpoint detection and response (EDR) tools, network traffic analysis, user reports, and third-party threat intelligence feeds \cite{nist_800_61}.
+Detection sources include Security Information and Event Management (SIEM) platforms, Intrusion Detection and Prevention Systems (IDS/IPS), endpoint detection and response (EDR) tools, network traffic analysis, user reports, and third-party threat intelligence feeds \citep{nist2025}.
 The analytical challenge at this phase is substantial: Security Operations Center (SOC) analysts are routinely exposed to hundreds or thousands of alerts per shift, the overwhelming majority of which are false positives.
-A 2022 study by Ponemon Institute found that SOC analysts spend approximately 27\% of their time investigating alerts that turn out to be non-incidents, contributing to analyst burnout and reduced organizational security posture \cite{ponemon_soc_2022}.
+A 2022 study by Ponemon Institute found that SOC analysts spend substantial time investigating alerts that turn out to be non-incidents, contributing to analyst burnout and reduced organizational security posture \citep{ponemon2022}.
 Effective detection requires not only robust tooling but well-defined triage procedures and severity classification criteria, typically organized into tiered priority levels (P1 through P4 or similar) that guide how quickly and intensively analysts must respond.
 
 \paragraph{Phase 3: Containment, Eradication, and Recovery.}
-Once an incident is confirmed and analyzed, the response team must act to limit its spread (containment), remove the threat actor and all malicious artifacts from affected systems (eradication), and restore normal operations from a known-good state (recovery) \cite{nist_800_61}.
+Once an incident is confirmed and analyzed, the response team must act to limit its spread (containment), remove the threat actor and all malicious artifacts from affected systems (eradication), and restore normal operations from a known-good state (recovery) \citep{nist2025}.
 Containment strategies range from short-term isolation of individual hosts to full network segmentation, and the choice depends heavily on the incident type and the organization's operational tolerance for disruption.
 Eradication may involve reimaging systems, revoking compromised credentials, patching exploited vulnerabilities, and removing persistence mechanisms.
 Recovery involves restoring services from clean backups, verifying system integrity, and gradually returning systems to production under close monitoring.
-A critical challenge throughout this phase is the tension between speed and thoroughness: moving too quickly risks missing residual attacker footholds, while excessive caution prolongs business disruption \cite{sans_incident_handler}.
+A critical challenge throughout this phase is the tension between speed and thoroughness: moving too quickly risks missing residual attacker footholds, while excessive caution prolongs business disruption \citep{sans2021}.
 
 \paragraph{Phase 4: Post-Incident Activity.}
 The final phase encompasses all activities that occur after the incident has been resolved.
-These include conducting a formal lessons-learned review, updating IR playbooks and detection rules based on findings, producing regulatory and management reports, preserving forensic evidence in accordance with legal requirements, and filing breach notifications where mandated by law \cite{nist_800_61}.
-This phase is frequently underinvested in practice: a 2021 survey by ISACA found that fewer than 40\% of organizations conducted formal post-incident reviews after every security incident \cite{isaca_survey_2021}.
+These include conducting a formal lessons-learned review, updating IR playbooks and detection rules based on findings, producing regulatory and management reports, preserving forensic evidence in accordance with legal requirements, and filing breach notifications where mandated by law \citep{nist2025}.
+This phase is frequently underinvested in practice: a 2021 survey by ISACA found that fewer than 40\% of organizations conducted formal post-incident reviews after every security incident \citep{isaca2021}.
 The consequence is a failure to incorporate operational knowledge back into preparation materials, leading to repeated errors in future incidents.
 
 \subsubsection{The Role of Playbooks in Incident Response}
 
 Incident response playbooks are structured, procedural documents that prescribe the exact steps an analyst must follow when handling a specific category of incident, such as ransomware, phishing, account compromise, or data exfiltration.
 Playbooks operationalize the high-level guidance of frameworks like NIST SP 800-61 into actionable, role-specific instructions.
-They typically include decision trees, escalation criteria, specific system commands, communication templates, and approval gates \cite{sans_incident_handler}.
+They typically include decision trees, escalation criteria, specific system commands, communication templates, and approval gates \citep{sans2021}.
 
 In practice, playbooks are most commonly stored and distributed as static documents --- PDF files, Word documents, or wiki pages --- that analysts must read and manually follow under time pressure.
-This creates a significant operational risk: research published in the \textit{Journal of Cybersecurity} has highlighted that cognitive load during high-stress incident response scenarios leads to procedural non-compliance, step skipping, and documentation gaps \cite{journal_cybersecurity_stress}.
+This creates a significant operational risk: research published in the \textit{Journal of Cybersecurity} has highlighted that cognitive load during high-stress incident response scenarios leads to procedural non-compliance, step skipping, and documentation gaps \citep{dutton2020}.
 Furthermore, static playbooks are difficult to keep current; as threat landscapes evolve and organizational environments change, outdated procedures can mislead responders rather than guide them.
 
 The concept of \textit{executable playbooks} or \textit{security orchestration, automation, and response} (SOAR) platforms has emerged as a technical response to these challenges.
-SOAR platforms such as Splunk SOAR (formerly Phantom), Palo Alto XSOAR, and IBM Resilient allow organizations to encode playbook logic into automated workflows that execute actions, track state, and enforce procedural compliance programmatically \cite{gartner_soar}.
+SOAR platforms such as Splunk SOAR (formerly Phantom), Palo Alto XSOAR, and IBM Resilient allow organizations to encode playbook logic into automated workflows that execute actions, track state, and enforce procedural compliance programmatically \autocite{gartner2023,cloudsek2026,shuffleosoar}.
 However, enterprise SOAR platforms are expensive, complex to deploy, and typically accessible only to large organizations with mature security operations, leaving small and medium-sized enterprises (SMEs) without viable alternatives to static document-based playbooks.
 In addition, many commercial ecosystems introduce platform dependency and limited portability, which complicates independent peer review, transparent version-controlled collaboration, and long-term procedural governance across heterogeneous toolchains.
 
@@ -89,14 +89,14 @@ In addition, many commercial ecosystems introduce platform dependency and limite
 Incident response does not operate in a legal vacuum.
 Organizations operating in or serving customers in regulated environments are subject to mandatory breach notification and incident documentation requirements under a growing body of legislation and regulation.
 
-The European Union's \textit{General Data Protection Regulation} (GDPR, Regulation 2016/679) requires organizations to notify the relevant supervisory authority within 72 hours of becoming aware of a personal data breach, and to notify affected individuals without undue delay where the breach is likely to result in high risk \cite{gdpr}.
-The \textit{Network and Information Security Directive} (NIS2 Directive, 2022/2555/EU), which came into force in October 2024, extends mandatory incident reporting obligations to a significantly broader range of sectors deemed critical infrastructure across EU member states, with substantial financial penalties for non-compliance \cite{nis2}.
-In the United States, sector-specific regulations such as the \textit{Sarbanes-Oxley Act} (SOX) impose obligations on publicly traded companies to maintain accurate records of material cybersecurity events affecting financial reporting systems \cite{sox}.
-The \textit{Health Insurance Portability and Accountability Act} (HIPAA) similarly mandates breach notification and documentation requirements in the healthcare sector \cite{hipaa}.
+The European Union's \textit{General Data Protection Regulation} (GDPR, Regulation 2016/679) requires organizations to notify the relevant supervisory authority within 72 hours of becoming aware of a personal data breach, and to notify affected individuals without undue delay where the breach is likely to result in high risk \citep{gdpr2016,nis22022,sox2002,hipaa1996}.
+The \textit{Network and Information Security Directive} (NIS2 Directive, 2022/2555/EU), which came into force in October 2024, extends mandatory incident reporting obligations to a significantly broader range of sectors deemed critical infrastructure across EU member states, with substantial financial penalties for non-compliance \citep{gdpr2016,nis22022,sox2002,hipaa1996}.
+In the United States, sector-specific regulations such as the \textit{Sarbanes-Oxley Act} (SOX) impose obligations on publicly traded companies to maintain accurate records of material cybersecurity events affecting financial reporting systems \citep{gdpr2016,nis22022,sox2002,hipaa1996}.
+The \textit{Health Insurance Portability and Accountability Act} (HIPAA) similarly mandates breach notification and documentation requirements in the healthcare sector \citep{gdpr2016,nis22022,sox2002,hipaa1996}.
 
 A common thread across all of these regulatory frameworks is the requirement for \textit{demonstrable, auditable evidence} that incidents were handled according to defined procedures.
 This creates a documentation burden that, under the pressure of an active incident, is frequently deprioritized in favor of immediate technical response actions.
-The resulting gap between what organizations claim their IR procedures are and what actually occurred during an incident is a recognized compliance risk, particularly during post-breach regulatory audits \cite{isaca_survey_2021}.
+The resulting gap between what organizations claim their IR procedures are and what actually occurred during an incident is a recognized compliance risk, particularly during post-breach regulatory audits \citep{isaca2021}.
 
 \subsubsection{Stakeholders in Incident Response Operations}
 
@@ -145,25 +145,25 @@ The diversity of stakeholder needs highlights a structural challenge within the 
 Drawing on the preceding analysis of the IR lifecycle, playbook practices, regulatory requirements, and stakeholder needs, several recurring problem areas can be identified that represent systemic weaknesses within the cybersecurity incident response domain.
 
 The first and most significant problem is the \textit{procedural compliance gap} introduced by static, document-based playbooks.
-When analysts must manually follow PDF or wiki-based procedures during high-pressure incidents, cognitive load and time constraints routinely lead to steps being skipped, executed out of order, or left undocumented \cite{journal_cybersecurity_stress}.
+When analysts must manually follow PDF or wiki-based procedures during high-pressure incidents, cognitive load and time constraints routinely lead to steps being skipped, executed out of order, or left undocumented \citep{dutton2020}.
 This is not a failure of individual competence but a structural consequence of using passive documentation artifacts to govern active, high-stakes operational processes.
 
 The second problem is the \textit{visibility and coordination deficit} experienced by SOC leads and CISOs during active incidents.
 Without real-time insight into which procedural steps have been completed, by whom, and with what outcome, senior stakeholders cannot make informed escalation decisions or identify response bottlenecks until the incident is resolved and an after-action report is compiled.
-This lag between operational reality and management awareness is a well-documented contributor to extended incident dwell times \cite{ibm_breach_2023}.
+This lag between operational reality and management awareness is a well-documented contributor to extended incident dwell times \citep{ibm2025}.
 
 The third problem is the \textit{auditability gap} that emerges at the intersection of operational IR and regulatory compliance.
-Compliance frameworks require organizations to demonstrate that documented procedures were followed; however, the informal, ad-hoc documentation practices common during live incidents rarely produce the structured, timestamped, analyst-attributed evidence necessary to satisfy regulatory audit requirements \cite{isaca_survey_2021}.
+Compliance frameworks require organizations to demonstrate that documented procedures were followed; however, the informal, ad-hoc documentation practices common during live incidents rarely produce the structured, timestamped, analyst-attributed evidence necessary to satisfy regulatory audit requirements \citep{isaca2021}.
 
 The fourth problem is the \textit{playbook quality assurance deficit}.
 Because playbooks are stored as static documents, there is no systematic mechanism for detecting logical errors, missing steps, undefined variables, or coverage gaps before an incident occurs.
-Quality control is largely informal and depends on periodic manual review, which is inconsistently performed \cite{sans_incident_handler}.
+Quality control is largely informal and depends on periodic manual review, which is inconsistently performed \citep{sans2021}.
 
 These four problem areas collectively define the operational and organizational context within which the present project is situated.
 
 \section{Description of the DSL}
 
-The IncidentFlow DSL is proposed as a representational solution to this problem. Instead of treating reporting as a final narrative that is manually composed from scattered operational artifacts, the DSL encodes incident logic directly in a structured, machine-parseable form. The language unifies operational flow and reporting semantics so that required report content emerges from validated process execution.
+The IncidentFlow DSL is proposed as a representational solution to this problem. Instead of treating reporting as a final narrative that is manually composed from scattered operational artifacts, the DSL encodes incident logic directly in a structured, machine-parseable form. The language unifies operational flow and reporting semantics so that required report content emerges from validated process execution \autocite{liu2019,cihml2023,dsldfir2019}.
 
 At the model level, the DSL separates reusable context from incident-specific behavior through configuration blocks, imports, and playbook declarations. Within playbooks, the language supports triggers, named phases, conditional branches, iteration, timeout-aware waiting, verification handlers, severity transitions, logging, and explicit control transfer. This design captures the essential response semantics needed for both execution guidance and report reconstruction.
 

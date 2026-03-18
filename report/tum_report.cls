@@ -72,7 +72,7 @@
 
 \RequirePackage{hyperref}
 
-\RequirePackage[numbers]{natbib}
+% \RequirePackage[numbers]{natbib}
 
 % #####
 % Pass additional options for packages.
