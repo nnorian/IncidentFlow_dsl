@@ -253,7 +253,7 @@ In summary, parser logic in IncidentFlow is intentionally conservative and relia
 
 \section{Derivation Tree Analysis}
 
-The derivation tree is the most direct structural representation of how an IncidentFlow specification is recognized by the grammar. Whereas token streams capture lexical units and parser rules define admissible forms, the derivation tree materializes the full hierarchical decomposition from the start symbol to terminal constructs. This makes the tree an important artifact for grammar validation, semantic mapping, and quality assurance in language evolution.
+The derivation tree is the most direct structural representation of how an IncidentFlow specification is recognized by the grammar. Whereas token streams capture lexical units and parser rules define admissible forms, the derivation tree materializes the full hierarchical decomposition from the start symbol to terminal constructs. In this project, the tree is used as an internal parser artifact for grammar validation, semantic mapping, and quality assurance in language evolution.
 
 For readability and layout continuity, the full derivation tree visual is provided in Appendix A.4.
 
@@ -291,4 +291,4 @@ program
 
 From an engineering perspective, this tree-centric view supports three advanced activities. First, it enables regression testing of grammar changes by comparing expected and actual subtree shapes for representative inputs. Second, it allows semantic passes to consume stable node patterns rather than brittle textual heuristics. Third, it improves diagnosability: when parse errors occur, developers can localize failures by identifying which subtree expansion failed and at what structural depth.
 
-Overall, the derivation tree is not a debugging convenience but a core architectural artifact in the IncidentFlow pipeline. It demonstrates that the language can express incident procedures as formally constrained structures, and it provides the foundation for reliable translation from authored playbooks to automation-ready reporting representations.
+Overall, the derivation tree should be viewed as a parser-level intermediate representation, not as the core architecture of the final IncidentFlow product. Its role is to make syntax processing deterministic and verifiable, so that higher-level components can reliably translate authored playbooks into automation-ready reporting representations.
