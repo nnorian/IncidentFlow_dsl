@@ -12,6 +12,10 @@ Any problem has its impact in the scope of one or multiple domains.
 It is important to identify this scope so that the problem could be analyzed and its impact over the domain assessed.
 Having that in place, the project team can come up with a concept for a solution to the analyzed problem. \cite{chicago}
 
+\subsection{Problem Statement}
+
+Incident response playbooks are currently static, weakly testable documents that cannot be validated or executed automatically with sufficient rigor, resulting in slower, less consistent, and more error-prone response during cybersecurity incidents.
+
 \subsection{Domain Overview: Cybersecurity Incident Response}
 
 Cybersecurity incident response (IR) is one of the most operationally demanding disciplines within the broader field of information security.
@@ -78,6 +82,7 @@ Furthermore, static playbooks are difficult to keep current; as threat landscape
 The concept of \textit{executable playbooks} or \textit{security orchestration, automation, and response} (SOAR) platforms has emerged as a technical response to these challenges.
 SOAR platforms such as Splunk SOAR (formerly Phantom), Palo Alto XSOAR, and IBM Resilient allow organizations to encode playbook logic into automated workflows that execute actions, track state, and enforce procedural compliance programmatically \cite{gartner_soar}.
 However, enterprise SOAR platforms are expensive, complex to deploy, and typically accessible only to large organizations with mature security operations, leaving small and medium-sized enterprises (SMEs) without viable alternatives to static document-based playbooks.
+In addition, many commercial ecosystems introduce platform dependency and limited portability, which complicates independent peer review, transparent version-controlled collaboration, and long-term procedural governance across heterogeneous toolchains.
 
 \subsubsection{Regulatory and Compliance Dimensions}
 
