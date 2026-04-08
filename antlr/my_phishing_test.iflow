@@ -1,0 +1,82 @@
+CONFIG team:
+    lead: "soc-lead"
+    members: ["analyst_tier1", "analyst_tier2", "forensics"]
+    escalation_chain: tier1 -> tier2 -> incident_commander
+
+CONFIG environment:
+    name: "production"
+    level: HIGH
+
+CONFIG notification:
+    channel: "slack"
+    fallback: "email"
+
+PLAYBOOK PhishingResponse
+    TRIGGER: incident.severity >= HIGH
+
+    PHASE triage:
+        LOG "T1566 Phishing triage initiated"
+        emailFlagged = checkEmailAlert(source: incident.alert_source)
+        VERIFY emailFlagged
+        ON_FAIL:
+            LOG "Alert could not be confirmed — closing as false positive"
+            SEVERITY LOW
+            GOTO report_close
+        SEVERITY HIGH
+        LOG "Spearphishing link detected (T1566.002)"
+        GOTO contain_link
+
+    PHASE contain_link:
+        LOG "Containing spearphishing link — T1566.002"
+        PARALLEL:
+            DO blockURL(source: incident.malicious_url, layer: "proxy")
+            DO blockURL(source: incident.malicious_url, layer: "dns")
+            DO extractIOCs(type: "url", output: "ioc_list")
+        SEVERITY HIGH
+        LOG "URL visited — checking endpoint compromise"
+        GOTO endpoint_triage
+
+    PHASE endpoint_triage:
+        LOG "Endpoint compromise suspected — running forensic checks"
+        FOR EACH host IN affectedUsers.devices:
+            result = runEDRScan(host: host, profile: "phishing_followup")
+            IF result.malware_found == TRUE THEN:
+                DO isolateHost(target: host, reason: "phishing_payload_exec")
+                LOG "Host isolated"
+            ELSE:
+                LOG "Host clean"
+        WAIT ack FROM forensics TIMEOUT 30min
+        ON_TIMEOUT:
+            SEVERITY CRITICAL
+            GOTO escalate
+        GOTO notify_users
+
+    PHASE notify_users:
+        LOG "Notifying affected users"
+        DO sendUserNotification(scope: affectedUsers, template: "phishing_awareness", channel: "email")
+        DO alertOnCall(service: "security_awareness", priority: MEDIUM)
+        GOTO resolve
+
+    PHASE escalate:
+        DO notifyManager(level: HIGH)
+        SEVERITY HIGH
+        LOG "Escalation notified — awaiting guidance"
+
+    PHASE resolve:
+        status = verifyEmailEnvironmentClean()
+        VERIFY status
+        ON_FAIL:
+            LOG "Environment not clean — re-escalating"
+            GOTO escalate
+        SEVERITY LOW
+        LOG "Phishing campaign contained and remediated"
+
+    PHASE report_close:
+        LOG "Incident closed as false positive after triage"
+
+    REPORT:
+        DO closeTicket(id: incident.id, resolution: "phishing_remediated")
+        DO generateReport(template: "T1566_postmortem", output: "pdf")
+        DO updateIOCFeed(source: ioc_list)
+        SEVERITY LOW
+        LOG "T1566 Phishing playbook completed"

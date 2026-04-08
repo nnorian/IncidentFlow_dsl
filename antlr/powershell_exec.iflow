@@ -1,0 +1,184 @@
+/* =============================================================
+   MITRE ATT&CK: T1059.001 — PowerShell (Execution / TA0002)
+   Often chained with: T1562.002 (disable logging),
+                       T1003 (credential dumping),
+                       T1021 (lateral movement)
+   ============================================================= */
+
+CONFIG team:
+    lead: "soc-lead"
+    members: ["analyst_tier2", "forensics", "sysadmin"]
+    escalation_chain: tier2 -> forensics -> incident_commander
+
+CONFIG environment:
+    name: "production"
+    level: HIGH
+
+PLAYBOOK PowerShellExecution
+    TRIGGER: incident.severity >= HIGH
+
+    PHASE detect:
+        LOG "T1059.001 PowerShell anomaly detected — starting analysis"
+
+        psLog = collectPowerShellLogs(
+            host: incident.affected_host,
+            types: ["ScriptBlock", "Module", "Transcription"]
+        )
+
+        VERIFY psLog
+        ON_FAIL:
+            LOG "PowerShell logging not enabled — critical visibility gap"
+            SEVERITY CRITICAL
+            DO alertOnCall(service: "sysadmin", priority: CRITICAL)
+            GOTO enable_logging
+
+        riskScore = analyzePSSession(
+            log: psLog,
+            indicators: ["EncodedCommand", "DownloadString", "IEX", "bypass", "hidden"]
+        )
+
+        IF riskScore >= 80 THEN:
+            SEVERITY CRITICAL
+            LOG "High-risk PowerShell session — immediate containment"
+            GOTO contain
+        ELSE:
+            IF riskScore >= 40 THEN:
+                SEVERITY HIGH
+                LOG "Medium-risk session — forensic investigation required"
+                GOTO investigate
+            ELSE:
+                LOG "Low risk score — monitoring and closing"
+                SEVERITY LOW
+                GOTO monitor
+
+    PHASE enable_logging:
+        LOG "Enabling PowerShell telemetry — critical gap remediation"
+
+        PARALLEL:
+            DO enableGroupPolicy(setting: "ScriptBlockLogging", scope: "domain")
+            DO enableGroupPolicy(setting: "ModuleLogging", scope: "domain")
+            DO enableGroupPolicy(setting: "Transcription", scope: "domain")
+
+        WAIT ack FROM sysadmin TIMEOUT 15min
+        ON_TIMEOUT:
+            SEVERITY CRITICAL
+            GOTO escalate
+
+        LOG "Logging re-enabled — re-running detection"
+        GOTO detect
+
+    PHASE contain:
+        LOG "Containing malicious PowerShell activity"
+
+        DO terminateProcess(
+            host: incident.affected_host,
+            process: "powershell.exe",
+            method: "force"
+        )
+
+        amsiBypass  = checkAMSIStatus(host: incident.affected_host)
+        logsCleared = checkEventLog(
+            host: incident.affected_host,
+            log: "Security",
+            event_id: 1102
+        )
+
+        IF amsiBypass == TRUE THEN:
+            LOG "Defense evasion detected (T1562) — isolating host"
+            DO isolateHost(target: incident.affected_host, reason: "evasion_detected")
+            SEVERITY CRITICAL
+        ELSE:
+            LOG "No evasion detected — partial containment sufficient"
+
+        lateralHosts = queryNetworkLogs(
+            source: incident.affected_host,
+            protocol: "WinRM",
+            timeframe: "last_60min"
+        )
+
+        IF lateralHosts.count > 0 THEN:
+            LOG "Lateral movement detected — expanding scope"
+            FOR EACH host IN lateralHosts:
+                DO isolateHost(target: host, reason: "lateral_movement_ps")
+        ELSE:
+            LOG "No lateral movement detected"
+
+        GOTO investigate
+
+    PHASE investigate:
+        LOG "Forensic investigation of PowerShell session"
+
+        PARALLEL:
+            DO collectArtifacts(
+                host: incident.affected_host,
+                types: ["prefetch", "registry_run_keys", "scheduled_tasks"]
+            )
+            DO dumpMemory(host: incident.affected_host, reason: "ps_forensics")
+            DO extractDecodedCommands(log: psLog, method: "base64_decode")
+
+        credDump = checkForCredentialDump(host: incident.affected_host)
+
+        IF credDump == TRUE THEN:
+            LOG "Credential dumping detected — chained T1003"
+            SEVERITY CRITICAL
+            GOTO credential_response
+        ELSE:
+            LOG "No credential access detected"
+
+        exfilAttempt = checkOutboundTransfers(
+            host: incident.affected_host,
+            threshold: "10MB",
+            timeframe: "last_2hr"
+        )
+
+        IF exfilAttempt == TRUE THEN:
+            SEVERITY CRITICAL
+            DO blockOutbound(host: incident.affected_host)
+            LOG "Exfiltration attempt blocked"
+        ELSE:
+            LOG "No exfiltration detected"
+
+        WAIT ack FROM forensics TIMEOUT 30min
+        ON_TIMEOUT:
+            GOTO escalate
+
+        GOTO resolve
+
+    PHASE credential_response:
+        LOG "Responding to credential compromise via PowerShell"
+
+        PARALLEL:
+            DO forcePasswordReset(scope: "affected_accounts")
+            DO revokeKerberosTickets(scope: incident.affected_host)
+            DO revokeActiveSessions(scope: "affected_accounts", provider: "IdP")
+
+        GOTO resolve
+
+    PHASE monitor:
+        LOG "Low-risk session — adding to watchlist"
+        DO addToWatchlist(
+            host: incident.affected_host,
+            rule: "ps_anomaly_follow",
+            duration: "7d"
+        )
+
+    PHASE escalate:
+        PARALLEL:
+            DO notifyManager(level: CRITICAL)
+            DO createTicket(priority: CRITICAL, type: "ps_execution_escalation")
+        SEVERITY CRITICAL
+        LOG "Escalated — manual incident commander takeover required"
+
+    PHASE resolve:
+        DO enforceExecutionPolicy(policy: "AllSigned", scope: "domain")
+        DO updateSIEMRules(profile: "T1059_001_hardened")
+
+        SEVERITY LOW
+        LOG "PowerShell incident resolved and environment hardened"
+
+    REPORT:
+        DO closeTicket(id: incident.id, resolution: "ps_execution_remediated")
+        DO generateReport(template: "T1059_postmortem", output: "pdf")
+        DO exportIOCs(format: "stix2", destination: "threat_intel_platform")
+        SEVERITY LOW
+        LOG "T1059.001 PowerShell playbook completed"
