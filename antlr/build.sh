@@ -29,7 +29,7 @@ echo "[3/5] Compiling..."
 mkdir -p bin
 javac -cp "${ANTLR_JAR}" -d bin \
     $(find gen -name '*.java') \
-    Main.java ReportVisitor.java SemanticChecker.java Wizard.java
+    $(find . -maxdepth 1 -name '*.java')
 
 # 4. Create iflow wrapper script (resolves its own directory at runtime)
 echo "[4/5] Creating iflow CLI wrapper..."
