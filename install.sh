@@ -4,11 +4,9 @@ set -e
 
 INSTALL_DIR="${HOME}/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ANTLR_DIR="${SCRIPT_DIR}/antlr"
 
 echo "→ Building iflow..."
-cd "${ANTLR_DIR}"
-bash build.sh
+bash "${SCRIPT_DIR}/build.sh"
 
 echo ""
 echo "→ Installing to ${INSTALL_DIR}/iflow ..."
@@ -16,7 +14,7 @@ mkdir -p "${INSTALL_DIR}"
 
 cat > "${INSTALL_DIR}/iflow" << EOF
 #!/usr/bin/env bash
-java -cp "${ANTLR_DIR}/bin:${ANTLR_DIR}/antlr-4.13.2-complete.jar" incidentflow.Main "\$@"
+java -cp "${SCRIPT_DIR}/bin:${SCRIPT_DIR}/lib/antlr-4.13.2-complete.jar" incidentflow.Main "\$@"
 EOF
 chmod +x "${INSTALL_DIR}/iflow"
 
@@ -35,6 +33,7 @@ else
     echo "  Run it from anywhere:"
     echo ""
     echo "    iflow --help"
-    echo "    iflow check  myplaybook.iflow"
-    echo "    iflow report myplaybook.iflow -o report.md"
+    echo "    iflow check  playbooks/myplaybook.iflow"
+    echo "    iflow report playbooks/myplaybook.iflow -o out.md"
+    echo "    iflow serve  -d playbooks/"
 fi
