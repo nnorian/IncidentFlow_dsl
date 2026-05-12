@@ -1,16 +1,69 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 function App() {
   const [code, setCode] = useState("");
   const [result, setResult] = useState("");
+  const [report, setReport] = useState("");
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fileBaseName, setFileBaseName] = useState("playbook");
+
+  const fileInputRef = useRef(null);
+
+  const sanitizeBaseName = (name, stripExtension = false) => {
+    const trimmed = (name ?? "").trim();
+    if (!trimmed) return "playbook";
+
+    const input = stripExtension ? trimmed.replace(/\.[^./\\]+$/, "") : trimmed;
+
+    const replaced = input
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
+      .replace(/\s+/g, "_")
+      .replace(/\.+$/g, "")
+      .replace(/_+/g, "_");
+
+    return replaced || "playbook";
+  };
+
+  const downloadTextFile = ({ content, filename, mimeType }) => {
+    const blob = new Blob([content], {
+      type: mimeType ?? "text/plain;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const onImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      setCode(text);
+      setFileBaseName(sanitizeBaseName(file.name, true));
+    } catch {
+      setErrors(["Could not read file"]);
+    }
+  };
 
   const compile = async () => {
     setLoading(true);
     setErrors([]);
     setResult("");
+    setReport("");
 
     try {
       const res = await fetch("http://localhost:8080/api/compile", {
@@ -42,6 +95,7 @@ function App() {
     setLoading(true);
     setErrors([]);
     setResult("");
+    setReport("");
 
     try {
       const res = await fetch("http://localhost:8080/api/report", {
@@ -53,7 +107,9 @@ function App() {
       });
 
       const data = await res.json();
-      setResult(data.report);
+      const nextReport = data.report ?? "";
+      setResult(nextReport);
+      setReport(nextReport);
     } catch (err) {
       setErrors(["Server error"]);
     }
@@ -70,6 +126,7 @@ function App() {
 
   REPORT:
     LOG "done"`);
+    setFileBaseName("example");
   };
 
   const buttonStyle = {
@@ -84,6 +141,16 @@ function App() {
     boxShadow: "0 4px 15px rgba(56,189,248,0.3)",
     transition: "0.2s",
   };
+
+  const buttonStyleDisabled = {
+    ...buttonStyle,
+    opacity: 0.45,
+    cursor: "not-allowed",
+    boxShadow: "none",
+  };
+
+  const canExportSource = code.trim().length > 0;
+  const canExportReport = report.trim().length > 0;
 
   return (
     <div
@@ -141,6 +208,46 @@ function App() {
           <button style={buttonStyle} onClick={loadExample}>
             Load Example
           </button>
+
+          <button style={buttonStyle} onClick={onImportClick}>
+            Import .iflow
+          </button>
+
+          <button
+            style={canExportSource ? buttonStyle : buttonStyleDisabled}
+            disabled={!canExportSource}
+            onClick={() =>
+              downloadTextFile({
+                content: code,
+                filename: `${sanitizeBaseName(fileBaseName)}.iflow`,
+                mimeType: "text/plain;charset=utf-8",
+              })
+            }
+          >
+            Export Source
+          </button>
+
+          <button
+            style={canExportReport ? buttonStyle : buttonStyleDisabled}
+            disabled={!canExportReport}
+            onClick={() =>
+              downloadTextFile({
+                content: report,
+                filename: `${sanitizeBaseName(fileBaseName)}.md`,
+                mimeType: "text/markdown;charset=utf-8",
+              })
+            }
+          >
+            Export Report
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".iflow,.txt"
+            onChange={onImportFile}
+            style={{ display: "none" }}
+          />
         </div>
 
         {/* EDITOR */}
