@@ -1,77 +1,11 @@
 % NEWLY INSERTED SECTION: DSL Overview, CLI, Frontend, API, and Technical Implementation
 \refstepcounter{chapter}
-\chapter*{IncidentFlow Architecture and Language Design}
+\chapter*{Implementation}
 \phantomsection
-\addcontentsline{toc}{chapter}{IncidentFlow Architecture and Language Design}
+\addcontentsline{toc}{chapter}{Implementation}
 \label{ch:incidentflow_architecture}
 
-This chapter details the design, structure, and implementation of IncidentFlow, describing the motivation behind the domain-specific language (DSL) and how the CLI, frontend, and HTTP API work together to enable automated incident response documentation.
-
-\section{Introduction to IncidentFlow}
-\label{sec:iflow_intro}
-
-IncidentFlow was designed to bridge the gap between technical incident response execution and the administrative burden of reporting. Traditional incident response requires security analysts to manually translate technical actions into rigid reporting templates after the incident is mitigated. This disconnect often leads to incomplete reporting, inconsistent vocabulary, and omitted severity transitions.
-
-IncidentFlow solves this by treating the reporting requirements as executable workflows. By defining playbooks in a formal DSL, analysts document the intended sequence of actions, decisions, and escalation chains upfront. The ecosystem comprises four main components that interoperate to provide a seamless user experience:
-\begin{itemize}
-    \item \textbf{The DSL}: A readable, formal language used to declare playbook configurations, triggers, and execution phases.
-    \item \textbf{The CLI}: A command-line tool that parses the DSL, validates its syntax and semantics, and compiles it into a structured Markdown report.
-    \item \textbf{The HTTP API}: A lightweight backend service exposing the compiler and report generator via REST endpoints.
-    \item \textbf{The Frontend}: A visual web application built on top of the API that allows users to write playbooks, use dynamic scenarios, and instantly preview generated reports without requiring local CLI installation.
-\end{itemize}
-
-Through this architecture, IncidentFlow integrates template compliance directly into the response workflow, ensuring that completeness and consistency are natural byproducts of incident execution.
-
-\section{Language Overview}
-\label{sec:language_overview}
-
-The IncidentFlow DSL is structured to be both human-readable and easily parseable. Every `.iflow` playbook specifies incident metadata, triggering conditions, operational phases, and closure reporting statements.
-
-A playbook begins with optional \texttt{CONFIG} blocks and \texttt{IMPORT} statements, allowing teams to declare environmental variables, team members, or external playbook dependencies. This is followed by a \texttt{PLAYBOOK} declaration and a \texttt{TRIGGER} expression that evaluates standard boolean and comparison operators. 
-
-The core logic lies within \texttt{PHASE} blocks. Each phase contains instructions that describe what should happen. The language supports standard control flows including variable assignments (e.g., \texttt{status = pingDB()}), conditional branching via \texttt{IF THEN ELSE}, \texttt{FOR} loops, and execution branching using \texttt{GOTO}. Furthermore, it supports concurrency primitives through the \texttt{PARALLEL} block and robust handling for manual and automated validations using \texttt{VERIFY} and \texttt{WAIT} semantics.
-
-Below is a representative playbook demonstrating configuration, logical branching, severity manipulation, concurrent actions, and incident closure:
-
-\begin{lstlisting}[language=java, caption={Example IncidentFlow playbook demonstrating core language constructs.}, label={lst:iflow_sample}]
-CONFIG team:
-    lead: "alice"
-    members: ["bob", "carol"]
-    escalation_chain: tier1 -> tier2 -> oncall
-
-PLAYBOOK DatabaseOutage
-    TRIGGER: incident.severity >= HIGH
-
-    PHASE triage:
-        status = pingDB()
-        IF status == FALSE THEN:
-            SEVERITY HIGH
-            GOTO escalate
-        ELSE:
-            LOG "All checks passed"
-
-    PHASE escalate:
-        PARALLEL:
-            DO notifyPager(user: oncall, priority: CRITICAL)
-            DO takeSnapshot(scope: "db", format: "full")
-        SEVERITY CRITICAL
-
-    REPORT:
-        DO closeTicket(id: incident.id, resolution: "auto")
-        SEVERITY LOW
-        LOG "Incident closed"
-\end{lstlisting}
-
-In this snippet, the \texttt{GOTO} statement governs the transition from the \texttt{triage} phase to the \texttt{escalate} phase depending on the dynamic evaluation of \texttt{pingDB()}. Severity levels (\texttt{LOW}, \texttt{MEDIUM}, \texttt{HIGH}, \texttt{CRITICAL}) are mutated natively, which the compiler tracks precisely to construct an audit trail in the final report.
-
-\section{Command-Line Interface (CLI)}
-\label{sec:cli}
-
-The \texttt{iflow} CLI is the central entry point for interacting with the compiler and tooling. It handles syntax validation, semantic checks, and text generation. The CLI simplifies playbook authoring by offering an interactive wizard alongside conventional parsing tools.
-
-\subsection{CLI Workflows}
-\section{Implementation}
-\label{sec:implementation}
+This chapter details the design, structure, and implementation of IncidentFlow, describing how the CLI, frontend, and HTTP API work together to enable automated incident response documentation.
 
 The IncidentFlow ecosystem is built upon a modular architecture, separating the core language compilation from the user-facing interfaces. At the parser level, ANTLR leverages the \texttt{IncidentFlow.g4} grammar definition to translate the source text into a deeply nested Parse Tree. The sequence of language tokens navigates through the lexer to extract fundamental constructs representing triggers and phases. 
 
@@ -101,43 +35,19 @@ A valid code compilation guarantees an HTTP 200, whereas malformed source texts 
 \subsection{Frontend Architecture and UI}
 \label{subsec:impl_frontend}
 
-The IncidentFlow frontend serves as a visual layer abstracting away the CLI restrictions, increasing accessibility for varying roles within security teams. It mirrors the CLI's utility in an intuitive, browser-based environment, relying entirely on the HTTP API backend for validation and compilation tasks.
+The IncidentFlow frontend serves as a visual layer abstracting away the CLI restrictions, increasing accessibility for varying roles within security teams. Built using React and Vite, the modern web application provides a responsive, component-driven interface that ensures fast rendering and modular maintainability. It mirrors the CLI's utility in an intuitive, browser-based environment, relying entirely on the HTTP API backend for validation and compilation tasks.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{images/main_page.png}
-    \caption{The main editor interface of the IncidentFlow UI.}
+    \caption{The main editor interface of the IncidentFlow UI, built with React and Vite.}
     \label{fig:ui_main}
 \end{figure}
 
-The application provides a dual-model interaction interface: users can explicitly define scripts via the "Manual Editor" or auto-generate code via the visual "Scenario Wizard" (Figure~\ref{fig:ui_wizard}). In the Manual Editor (Figure~\ref{fig:ui_main}), text input is pushed to the API in real time.
+The application provides a dual-model interaction interface: users can explicitly define scripts via the "Manual Editor" or auto-generate code via the visual "Scenario Wizard" (refer to Figure~\ref{fig:ui_wizard} in the Appendix). In the Manual Editor (Figure~\ref{fig:ui_main}), text input is pushed to the API in real time.
 
-When a user elects to generate a report from a pre-authored example, the UI loads playbooks from the backend (Figure~\ref{fig:ui_example}). If syntax or semantic faults are typed directly into the editor, the frontend catches HTTP 422 mapping errors, highlighting the exact mismatched tokens and line numbers via a red banner at the bottom of the interface (Figure~\ref{fig:ui_validate}). Finally, upon successful parsing, the frontend displays the fully templated HTML rendering of the generated Markdown (Figure~\ref{fig:ui_report_gen}), completing the visual feedback loop.
+When a user elects to generate a report from a pre-authored example, the UI loads playbooks from the backend (see Figure~\ref{fig:ui_example} in the Appendix). If syntax or semantic faults are typed directly into the editor, the frontend catches HTTP 422 mapping errors, highlighting the exact mismatched tokens and line numbers via a red banner at the bottom of the interface (Figure~\ref{fig:ui_validate}). Finally, upon successful parsing, the frontend displays the fully templated HTML rendering of the generated Markdown (Figure~\ref{fig:ui_report_gen}), completing the visual feedback loop.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/scenario_wizard.png}
-    \caption{The interactive Scenario Wizard mirroring CLI functionality in the browser.}
-    \label{fig:ui_wizard}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/validate_code.png}
-    \caption{Syntax validation error reporting in the manual editor.}
-    \label{fig:ui_validate}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/generate_report_using_example.png}
-    \caption{Loading and browsing playbook examples via the UI.}
-    \label{fig:ui_example}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/generated_report_using_wizard.png}
-    \caption{The resultant incident report rendered visually.}
-    \label{fig:ui_report_gen}
-\end{figure}
