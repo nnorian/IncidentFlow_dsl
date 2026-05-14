@@ -10,4 +10,9 @@ The ANTLR-based implementation confirms technical feasibility. The grammar defin
 
 Overall, the DSL contributes both usability and governance value. It improves the end-user experience by reducing cognitive overhead and repetitive formatting tasks, while also improving organizational outcomes through more complete, auditable, and reproducible incident reports. The project therefore demonstrates that a domain-specific language can serve as a practical architectural mechanism for turning incident documentation from a manual burden into a controlled and automatable process \autocite{reach2025,swimlane2025,report2026}.
 
+% NEWLY INSERTED EXPANDED CONCLUSION
+Beyond its foundational parsing mechanics, IncidentFlow significantly accelerates remediation workflows by coupling strict DSL definitions with scalable execution options. Through the introduction of the interactive scenario wizard, HTTP API, and modern frontend application, it actively reduces the barrier to entry typically associated with formal grammars. The API-driven architecture preserves extensibility, permitting external cybersecurity tools to natively harness the compilation pipeline or ingest resulting Markdown documents autonomously.
+
+Looking forward, the DSL's structured handling of severity routing, concurrency, and validation creates a compelling starting point for further automation benefits. Future iterations could integrate active execution semantics—allowing the language to automatically push incident status updates to enterprise tools directly during compilation—or dynamically map mitigation workflows to enterprise SOAR systems. Ultimately, building reporting accountability natively into the response workflow makes IncidentFlow an extensible, highly maintainable alternative to error-prone legacy document templates.
+
 The IncidentFlow DSL project source code and grammar files are available at: \url{https://github.com/nnorian/IncidentFlow_dsl/} \autocite{report2026}.
