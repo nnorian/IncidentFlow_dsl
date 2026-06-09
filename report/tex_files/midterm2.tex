@@ -1,7 +1,7 @@
 \refstepcounter{chapter}
-\chapter*{Language Architecture and Implementation}
+\chapter*{Language Architecture}
 \phantomsection
-\addcontentsline{toc}{chapter}{Language Architecture and Implementation}
+\addcontentsline{toc}{chapter}{Language Architecture}
 
 \section{Grammar Structure}
 
@@ -20,6 +20,8 @@ config_block
     : CONFIG config_name COLON config_entry+
     ;
 \end{lstlisting}
+
+These underlying grammar rules dictate the parsing boundary for the DSL structure depicted here. Specifically, the \texttt{program} rule requires that every processed script evaluates optional metadata definitions first (\texttt{config\_block} and \texttt{import\_decl}), while strictly mandating at least one \texttt{playbook\_decl} to form a valid execution graph.
 
 From an architectural perspective, this top-level design enforces a useful separation of concerns. Configuration captures stable, reusable organizational metadata, while playbooks capture incident-specific behavior. The report model then becomes derivable from explicit execution constructs instead of informal prose. This is the first step toward reducing manual requirement-checking and enforcing template completeness through syntax.
 

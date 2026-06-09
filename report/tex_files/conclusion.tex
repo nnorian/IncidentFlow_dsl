@@ -2,12 +2,17 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{Conclusions}
 
-This report analyzed the incident reporting domain and demonstrated why manual, template-driven workflows remain a significant operational bottleneck. The analysis showed that repeated requirement-checking, duplicated data entry, and late-stage formatting validation reduce response efficiency and negatively affect report consistency. These issues are structural and cannot be reliably solved through stricter discipline alone.
+This project set out to design and implement a domain-specific language (DSL) to partially automate and standardize cybersecurity incident reporting. To achieve the goals outlined in the Abstract, the following objectives were completed:
 
-The IncidentFlow DSL addresses this gap by moving from document-centric reporting to process-centric specification. By encoding triggers, phases, verification points, severity transitions, and report actions in a formal grammar, the approach enables consistent structure and predictable execution semantics. In practical terms, users spend less effort validating template compliance because required reporting elements are captured through language constructs rather than after-the-fact manual editing.
+\begin{itemize}
+    \item \textbf{Formal Specification:} A custom grammar (\texttt{IncidentFlow.g4}) was implemented using ANTLR, defining language constructs for triggers, phases, logic branching, and severity escalation.
+    \item \textbf{Compiler and Validation:} A parser pipeline was established to evaluate the incident playbooks for both syntactic correctness and semantic consistency, effectively replacing manual requirement-checking with automated validation.
+    \item \textbf{CLI Toolkit:} A command-line interface was developed to allow engineers to validate scripts and generate structured Markdown incident reports. Specifically, an interactive scenario wizard was added to accelerate playbook generation for common MITRE ATT\&CK classifications.
+    \item \textbf{API and Frontend Integration:} The core compiler was exposed via an HTTP REST API, which served as the backend for a React and Vite-based web frontend. This enabled real-time syntax checking and report rendering directly in the browser.
+\end{itemize}
 
-The ANTLR-based implementation confirms technical feasibility. The grammar defines a clear syntactic contract, the lexer provides domain-aligned tokenization, and the parser pipeline offers deterministic validation with explicit error handling. Together, these components establish a foundation for automated report generation, procedural quality control, and future integration with operational security tooling.
+The resulting implementation confirms that replacing manual, document-centric incident reporting with a process-centric DSL is technically feasible. The unified architecture successfully bridges the operational necessity of executing technical responses with the administrative requirement of maintaining auditable compliance evidence. 
 
-Overall, the DSL contributes both usability and governance value. It improves the end-user experience by reducing cognitive overhead and repetitive formatting tasks, while also improving organizational outcomes through more complete, auditable, and reproducible incident reports. The project therefore demonstrates that a domain-specific language can serve as a practical architectural mechanism for turning incident documentation from a manual burden into a controlled and automatable process \autocite{reach2025,swimlane2025,report2026}.
+Future development could extend the DSL's capabilities by directly integrating it with enterprise SOAR systems, allowing the compiler to not only generate documentation but simultaneously push automated mitigation commands across network endpoints.
 
-The IncidentFlow DSL project source code and grammar files are available at: \url{https://github.com/nnorian/IncidentFlow_dsl/} \autocite{report2026}.
+The IncidentFlow DSL project source code relative to this implementation is available at: \url{https://github.com/nnorian/IncidentFlow_dsl/} \autocite{report2026}.

@@ -6,8 +6,8 @@ The core problem is that incident response playbooks remain largely static, diff
 
 The proposed solution encodes incident logic and reporting semantics in a unified formal specification, including triggers, phases, control-flow constructs, verification handlers, severity transitions, and reporting actions. This design reduces repetitive requirement-checking by making structural completeness and procedural consistency properties of the language model itself.
 
-Implementation is realized through an ANTLR-based parsing pipeline comprising a rigorously specified grammar, domain-constrained lexical analysis, and deterministic parser behavior with explicit error instrumentation, as detailed in Chapter 2. This architecture furnishes a syntactically validated intermediate representation that can be leveraged for downstream automation, conformance assurance, and reproducible report synthesis.
+Implementation is realized through an ANTLR-based parsing pipeline comprising a formal grammar, domain-constrained lexical analysis, and deterministic parser behavior with explicit error instrumentation, as detailed in Chapter 2. This architecture furnishes a syntactically validated intermediate representation that can be leveraged for downstream automation, conformance assurance, and reproducible report synthesis.
 
-The principal contribution is a methodologically robust and extensible foundation for process-aware incident reporting that improves operational efficiency, attenuates human error, and strengthens evidentiary quality in high-pressure security operations.
+The principal contribution is an extensible foundation for process-aware incident reporting that improves operational efficiency, attenuates human error, and strengthens evidentiary quality in high-pressure security operations.
 
 \textbf{Keywords: } Domain-Specific Languages, Cybersecurity Incident Response, Incident Reporting Automation, ANTLR, Parser Design, Compliance Engineering, Human Error Reduction.
